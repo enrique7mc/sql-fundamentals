@@ -174,3 +174,35 @@ ORDER BY 4, 2, 3;
 -- *The ORDER BY clause cannot have more than 255 columns or expressions.
 
 -- ***Sorting NULLs
+--By default, in an ascending-order sort, the NULL values appear at the bottom of the result set;
+--that is, NULLs are sorted higher.
+
+-- Nulls are sorted higher
+SELECT last_name, commission_pct
+FROM employees
+WHERE last_name LIKE 'R%'
+ORDER BY commission_pct ASC, last_name DESC;
+
+-- Null first
+SELECT last_name, commission_pct
+FROM employees
+WHERE last_name LIKE 'R%'
+ORDER BY commission_pct ASC NULLS FIRST, last_name DESC;
+
+-- *** The CASE expression
+
+SELECT country_name, region_id,
+		CASE region_id WHEN 1 THEN 'Europe'
+									 WHEN 2 THEN 'America'
+									 WHEN 3 THEN 'Asia'
+									 ELSE 'Other' END Continent
+FROM countries
+WHERE country_name LIKE 'I%';
+
+SELECT first_name, department_id, salary,
+		CASE WHEN salary < 6000 THEN 'Low'
+				 WHEN salary < 10000 THEN 'Medium'
+				 WHEN salary >= 10000 THEN 'High' END Category
+FROM employees
+WHERE department_id <= 30
+ORDER BY first_name;
