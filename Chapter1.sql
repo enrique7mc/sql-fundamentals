@@ -1,3 +1,6 @@
+-- Unlock HR user account
+ALTER USER hr IDENTIFIED BY hrpassword ACCOUNT UNLOCK;
+
 -- Using the SELECT Statement
 SELECT * FROM jobs;
 
@@ -206,3 +209,47 @@ SELECT first_name, department_id, salary,
 FROM employees
 WHERE department_id <= 30
 ORDER BY first_name;
+
+-- *** Accepting values at runtime
+SELECT department_name
+FROM departments
+WHERE department_id = &dept;
+
+-- Execute in sql plus
+DEFINE DEPT = 20
+DEFINE DEPT
+LIST
+/
+
+--A . (dot) is used to append characters immediately after the substitution variable.
+SELECT job_id, job_title FROM jobs
+WHERE job_id = '&JOB._REP';
+/
+
+--You can turn off the old/new display by using the command SET VERIFY OFF.
+SELECT &COL1, &COL2
+FROM &TABLE
+WHERE &COL1 = '&VAL'
+ORDER BY &COL2;
+
+SAVE ex01
+@ex01
+-- FIRST_NAME, LAST_NAME, EMPLOYEES, FIRST_NAME, John, LAST_NAME
+
+--To clear a defined variable, you can use the UNDEFINE command.
+
+--Edit buffer
+SELECT &&COL1, &&COL2
+FROM &TABLE
+WHERE &COL1 = ‘&VAL’
+ORDER BY &COL2;
+
+--** Using positional Notation for Variables
+SELECT department_name, department_id
+FROM departments
+WHERE &1 = &2;
+--department_id, 20
+
+SAVE ex02
+SET VERIFY OFF
+@ex02 department_id 20
