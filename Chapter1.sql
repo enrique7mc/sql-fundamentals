@@ -1,5 +1,6 @@
 -- Unlock HR user account
 ALTER USER hr IDENTIFIED BY hrpassword ACCOUNT UNLOCK;
+ALTER USER oe IDENTIFIED BY oepassword ACCOUNT UNLOCK;
 
 -- Using the SELECT Statement
 SELECT * FROM jobs;
