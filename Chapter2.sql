@@ -82,3 +82,154 @@ occurrence of c2 is found. The search begins at the i character position in c1. 
 a 0 when the requested string is not found. If i is negative, the search is performed backward,
 from right to left, but the position is still counted from left to right. Both i and j
 default to 1, and j cannot be negative. */
+
+
+-- TODO: complete string functions
+
+--*** Using Single-Row Numeric Functions
+
+-- ABS(n)
+/*This function returns the absolute value of n.*/
+SELECT ABS(-52) negative, ABS(52) positive
+FROM dual;
+
+-- ACOS(n)
+/*This function returns the arc cosine of n expressed in radians*/
+SELECT ACOS(-1) PI, ACOS(0) ACOSZERO,
+	   ACOS(.045) ACOS045, ACOS(1) ZERO
+FROM dual;
+
+-- ASIN(n) 
+/* This function returns the arc sine of n expressed in radians*/
+SELECT ASIN(1) high, ASIN(0) middle, ASIN(-1) low
+FROM dual;
+
+-- ATAN(n)
+/*This function returns the arc tangent of n expressed in radians*/
+SELECT ATAN(9E99) high, ATAN(0) middle, ATAN(-9E99) low
+FROM dual;
+
+-- ATAN2(n1, n2)
+/*This function returns the arc tangent of n1 and n2 expressed in radians*/
+SELECT ATAN2(9E99,1) high, ATAN2(0,3.1415) middle, ATAN2(-9E99,1) low
+FROM dual;
+
+-- BITAND(n1, n2)
+/*This function performs a bitwise AND operation 
+on the two input values and returns the results, also an integer*/
+SELECT BITAND(6,3) T1, BITAND(8,2) T2
+FROM dual;
+
+-- CEIL(n)
+/* This function returns the smallest integer that is greater than or equal to n.*/
+SELECT CEIL(9.8), CEIL(-32.85), CEIL(0), CEIL(5)
+FROM dual;
+
+-- COS(n)
+/* This function returns the cosine of n*/
+SELECT COS(-3.14159) FROM dual;
+
+-- COSH(n)
+/* This function returns the hyperbolic cosine of n */
+SELECT COSH(1.4) FROM dual;
+
+-- EXP(n)
+/* This function returns e (the base of natural logarithms) raised to the n power*/
+SELECT EXP(1) "e" FROM dual;
+
+-- FLOOR(n)
+/* This function returns the largest integer that is less than or equal to n*/
+SELECT FLOOR(9.8), FLOOR(-32.85), FLOOR(137)
+FROM dual;
+
+-- LN(n)
+/* This function returns the natural logarithm of n*/
+SELECT LN(2.7) FROM dual;
+
+-- LOG(n1, n2)
+/* This function returns the logarithm base n1 of n2*/
+SELECT LOG(8,64), LOG(3,27), LOG(2,1024), LOG(2,8)
+FROM dual;
+
+-- MOD(n1, n2)
+/* This function returns n1 modulo n2, or the remainder of n1 divided by n2. If n1 is negative, the result
+is negative. The sign of n2 has no effect on the result. If n2 is zero, the result is n1.*/
+SELECT MOD(14,5), MOD(8,2.5), MOD(-64,7), MOD(12,0)
+FROM dual;
+
+-- POWER(n1, n2)
+/* This function returns n1 to the n2 power*/
+SELECT POWER(2,10), POWER(3,3), POWER(5,3), POWER(2,-3)
+FROM dual;
+
+-- REMAINDER(n1, n2)
+/* This function returns the remainder of n1 divided by n2. If n1 is negative, the result is negative.
+The sign of n2 has no effect on the result. If n2 is zero and the datatype of n1 is NUMBER,
+an error is returned; if the datatype of n1 is BINARY_FLOAT or BINARY_DOUBLE,
+NaNis returned. */
+SELECT REMAINDER(13,5), REMAINDER(12,5), REMAINDER(12.5, 5)
+FROM dual;
+
+SELECT REMAINDER(TO_BINARY_FLOAT(‘13.0’), 0) RBF
+from dual;
+
+/* The difference between MOD and REMAINDER is that MOD uses the FLOOR function, whereas
+REMAINDER uses the ROUND function in the formula. */
+SELECT MOD(13,5), MOD(12,5), MOD(12.5, 5)
+FROM dual;
+
+-- ROUND(n1 [,n2])
+/* This function returns n1 rounded to n2 digits of precision to the right of the decimal. If n2
+is negative, n1 is rounded to the left of the decimal. If n2 is omitted, the default is zero. */
+SELECT ROUND(123.489), ROUND(123.489, 2),
+	   ROUND(123.489, -2), ROUND(1275, -2)
+FROM dual;
+
+-- SIGN(n)
+/* This function returns –1 if n is negative, 1 if n is positive, and 0 if n is 0. */  
+SELECT SIGN(-2.3), SIGN(0), SIGN(47)
+FROM dual;
+
+-- SIN(n)
+/* This function returns the sine of n */
+SELECT SIN(1.57079) FROM dual;
+
+-- SINH(n)
+/* This function returns the hyperbolic sine of n*/
+SELECT SINH(1) FROM dual;
+
+-- SQRT(n)
+/* This function returns the square root of n*/
+SELECT SQRT(64), SQRT(49), SQRT(5)
+FROM dual;
+
+-- TAN(n)
+/* This function returns the tangent of n*/
+SELECT TAN(1.57079633/2) "45_degrees"
+FROM dual;
+
+-- TANH(n)
+/* This function returns the hyperbolic tangent of n */
+SELECT TANH( ACOS(-1) ) hyp_tan_of_pi
+FROM dual;
+
+-- TRUNC(n1 [,n2])
+/* This function returns n1 truncated to n2 digits of precision to the right of the decimal. If n2
+is negative, n1 is truncated to the left of the decimal.*/
+SELECT TRUNC(123.489), TRUNC(123.489, 2),
+	   TRUNC(123.489, -2), TRUNC(1275, -2)
+FROM dual;
+
+-- WIDTH_BUCKET(n1, min_val, max_val, buckets)
+/* This function builds histograms of equal
+width. The first argument n1 can be an expression of a numeric or datetime datatype. The
+second and third arguments, min_val and max_val, indicate the end points for the histogram’s
+range. The fourth argument, buckets, indicates the number of buckets./
+
+/* The following example divides the salary into a 10-bucket histogram within the range
+2,500 to 11,000. If the salary falls below 2500, it will be in the underflow bucket (bucket 0),
+and if the salary exceeds 11,000, it will be in the overflow bucket (buckets + 1). */
+SELECT first_name, salary,
+	WIDTH_BUCKET(salary, 2500, 11000, 10) hist
+FROM employees
+WHERE first_name like ‘J%’;
