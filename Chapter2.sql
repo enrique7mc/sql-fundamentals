@@ -232,4 +232,187 @@ and if the salary exceeds 11,000, it will be in the overflow bucket (buckets + 1
 SELECT first_name, salary,
 	WIDTH_BUCKET(salary, 2500, 11000, 10) hist
 FROM employees
-WHERE first_name like ‘J%’;
+WHERE first_name like 'J%';
+
+--*** Using Single-Row Conversion Functions
+
+-- ASCIISTR(c1)
+/* This function returns
+the ASCII equivalent of all the characters in c1. This function leaves ASCII characters
+unchanged, but non-ASCII characters are returned in the format \xxxx where xxxx represents
+a UTF-16 code unit. */
+SELECT ASCIISTR('cañon') E1, ASCIISTR('faß') E2
+FROM dual;
+
+-- BIN_TO_NUM(b), b is a comma-delimited list of bits
+/* This function returns the numeric representation of all the bit-field set b. It essentially converts a
+base 2 number into a base 10 number */
+SELECT BIN_TO_NUM(1,1,0,1) bitfield1,
+	   BIN_TO_NUM(0,0,0,1) bitfield2,
+	   BIN_TO_NUM(1,1) bitfield3
+FROM dual;
+
+-- CAST(exp AS t)
+/* This function converts the expression exp into the datatype t */
+SELECT CAST(SYSDATE AS TIMESTAMP WITH LOCAL TIME ZONE) DT_2_TS
+FROM dual;
+
+-- CHARTOROWID(c)
+/* This function returns c as a ROWID datatype. */
+/*Each row in the database is uniquely identified by a ROWID. ROWID shows
+the physical location of the row stored in the database.*/
+SELECT rowid, first_name
+FROM employees
+WHERE first_name = 'Sarath';
+
+SELECT first_name, last_name
+FROM employees
+WHERE rowid = CHARTOROWID('AAARAgAAFAAAABYAA9');
+
+-- CONVERT(c, dset [,sset]) dset and sset are character-set names
+/* This function returns the character string c converted
+from the source character set sset to the destination character set dset */
+select convert (‘vis-à-vis’,’AL16UTF16’,’AL32UTF8’)
+from dual;
+
+-- NUMTODSINTERVAL(x , c)
+/* This function converts the number x into an INTERVAL
+DAY TO SECOND datatype. */
+SELECT SYSDATE,
+		SYSDATE+NUMTODSINTERVAL(2,’HOUR’) "2 hours later",
+		SYSDATE+NUMTODSINTERVAL(30,’MINUTE’) "30 minutes later"
+FROM dual;
+
+-- NUMTOYMINTERVAL(x , c)
+/* This function converts the number x into an INTERVAL
+YEAR TO MONTH datatype. */
+SELECT SYSDATE,
+		SYSDATE+NUMTOYMINTERVAL(2,’YEAR’) "2 years later",
+		SYSDATE+NUMTOYMINTERVAL(5,’MONTH’) "5 months later"
+FROM dual;
+
+-- ROWIDTOCHAR(c)
+/* This function returns the ROWID string c converted to a VARCHAR2 datatype.
+No translation is performed; only the datatype is changed */
+SELECT ROWIDTOCHAR(ROWID) Char_RowID, first_name
+FROM employees
+WHERE first_name = 'Sarath';
+
+-- SCN_TO_TIMESTAMP (n)
+/* This function returns the timestamp associated with the SCN. 
+An SCN is a number that gets incremented when a commit occurs in the database. The
+SCN identifies the state of the database uniquely */
+SELECT SCN_TO_TIMESTAMP(ORA_ROWSCN) mod_time, last_name
+FROM employees
+WHERE first_name = 'Lex';
+
+-- TIMESTAMP_TO_SCN (<ts>)
+/* identify the SCN associated with a particular timestamp. */
+SELECT TIMESTAMP_TO_SCN('14-JAN-14 09.52.20') DB_SCN
+FROM dual;
+
+-- TO_BINARY_DOUBLE(<expr> [,<fmt> [,<nlsparm>] ])
+/* where expr is
+a character or numeric string, fmt is a format string specifying the format that c appears in,
+and nlsparm specifies language- or location-formatting conventions */
+/* This function returns a binary double-precision floating-point number 
+of datatype BINARY_DOUBLE represented by expr. */
+SELECT TO_BINARY_DOUBLE('1234.5678','999999.9999') CHR_FMT_DOUBLE,
+TO_BINARY_DOUBLE('1234.5678') CHR_DOUBLE,
+TO_BINARY_DOUBLE(1234.5678) NUM_DOUBLE,
+TO_BINARY_DOUBLE('INF') INF_DOUBLE
+FROM dual;
+
+-- TO_BINARY_FLOAT(<expr> [,<fmt> [,<nlsparm>] ])
+/* This function returns a binary single-precision floating-point 
+number of datatype BINARY_FLOAT represented by expr. */
+SELECT TO_BINARY_FLOAT('1234.5678','999999.9999') CHR_FMT_FLOAT,
+		TO_BINARY_FLOAT('1234.5678') CHR_FLOAT,
+		TO_BINARY_FLOAT(1234.5678) NUM_FLOAT,
+		TO_BINARY_FLOAT('INF') INF_FLOAT
+FROM dual;
+
+/* NOTE: Converting from a character or NUMBER to BINARY_FLOAT and BINARY_
+DOUBLE may not be exact since BINARY_FLOAT and BINARY_DOUBLE
+use binary precision, whereas NUMBER uses decimal precision*/
+
+-- TO_CHAR(<expr> [,<fmt >[,<nlsparm>] ])
+/* This function returns expr converted into a character string (the VARCHAR2 datatype) */
+SELECT TO_CHAR(SYSDATE,'Day Ddspth,Month YYYY'
+ 	,'NLS_DATE_LANGUAGE=German') Today_Heute
+FROM dual;
+
+SELECT TO_CHAR(SYSDATE ,'"On the "Ddspth" day of "Month, YYYY') Today
+FROM dual;
+
+/* For any of the numeric codes, the ordinal and/or spelled-out representation can be displayed
+with the modifier codes th (for ordinal) and sp (for spelled out). Here is an example: */
+SELECT SYSDATE,
+TO_CHAR(SYSDATE,'Mmspth') Month,
+TO_CHAR(SYSDATE,'DDth') Day,
+TO_CHAR(SYSDATE,'Yyyysp') Year
+FROM dual;
+
+-- TO_DATE(<c> [,<fmt> [,<nlsparm>] ])
+/* This function returns c converted into the DATE datatype. */
+alter session set nls_date_format = 'DD-MON-RR HH24:MI:SS';
+
+SELECT TO_DATE('30-SEP-2007', 'DD/MON/YY') DateExample
+FROM dual;
+
+SELECT TO_DATE('SEP-2007 13', 'MON/YYYY HH24') DateExample
+FROM dual;
+
+--** Converting Numbers to Words
+SELECT TO_CHAR(TO_DATE(&NUM, 'J'), 'jsp') num_to_spell
+FROM dual;
+
+-- TO_DSINTERVAL(<c> [,<nlsparm>])
+/* This function returns c converted into an INTERVAL DAY TO SECOND */
+SELECT SYSDATE,
+		SYSDATE+TO_DSINTERVAL('007 12:00:00') "+7 1/2 days",
+		SYSDATE+TO_DSINTERVAL('030 00:00:00') "+30 days"
+FROM dual;
+
+-- TO_NUMBER(<expr> [,<fmt> [,<nlsparm>] ])
+/* This function returns the numeric value represented by expr. */
+SELECT TO_NUMBER('234.89'), TO_NUMBER(1E-3) FROM dual;
+
+-- TO_TIMESTAMP(<c> [,<fmt> [,<nlsparm>] ])
+/* The return value is of the TIMESTAMP datatype. */
+SELECT TO_TIMESTAMP('30-SEP-2007 08:51:23.456',
+'DD-MON-YYYY HH24:MI:SS.FF')
+FROM dual;
+
+-- TO_TIMESTAMP(<c> [,<fmt> [,<nlsparm>] ])
+/* The return datatype is TIMESTAMP WITH TIME ZONE. */
+SELECT TO_TIMESTAMP_TZ('30-SEP-2007 08:51:23.456',
+		'DD-MON-YYYY HH24:MI:SS.FF') TS_TZ_Example
+FROM dual;
+
+-- TO_YMINTERVAL(<c>)
+/* This function returns c converted into an INTERVAL YEAR TO MONTH datatype. */
+SELECT SYSDATE,
+SYSDATE+TO_YMINTERVAL('01-03') "+15 months",
+SYSDATE-TO_YMINTERVAL('00-03') "-3 months"
+FROM dual;
+
+-- UNISTR(<c>)
+/* This function returns c in Unicode in the database Unicode character set. */
+SELECT UNISTR('\00A3'), UNISTR('\00F1'), UNISTR('ca\00F1on')
+FROM dual;
+
+-- DECODE(x ,m1, r1 [,m2 ,r2]…[,d])
+/* x is an expression. m1
+is a matching expression to compare with x. If m1 is equivalent to x, then r1 is returned;
+otherwise, additional matching expressions (m2, m3, m4, and so on) are compared, if they
+are included, and the corresponding result (r2, r3, r4, and so on) is returned. If no match is
+found and the default expression d is included, then d is returned.*/
+SELECT country_id, country_name, region_id,
+		DECODE(region_id, 1, 'Europe',
+						  2, 'Americas',
+						  3, 'Asia',
+							 'Other') Region
+FROM countries
+WHERE SUBSTR(country_id,1,1) = 'I'
+		OR SUBSTR(country_id,2,1) = 'R';
