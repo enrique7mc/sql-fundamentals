@@ -548,3 +548,56 @@ SELECT country_id, country_name, region_id,
 FROM countries
 WHERE SUBSTR(country_id,1,1) = 'I'
 		OR SUBSTR(country_id,2,1) = 'R';
+
+-- GREATEST(exp_list)
+/* This function returns the expression that sorts highest in the 
+datatype of the first expression. */
+SELECT GREATEST('01-ARP-08','30-DEC-01','12-SEP-09')
+FROM dual;
+
+-- SELECT GREATEST(345, ‘XYZ’, 2354) FROM dual; -- Error
+SELECT GREATEST('XYZ', 345, 2354) FROM dual;
+
+-- LEAST(exp_list)
+/* This function returns the expression that sorts lowest in the 
+datatype of the first expression */
+SELECT LEAST(SYSDATE,'15-MAR-2002','17-JUN-2002') oldest
+FROM dual;
+
+/* The following SQL is used to calculate a bonus of 15 percent of salary to employees,
+with a maximum bonus at 500 and a minimum bonus at 400: */
+SELECT last_name, salary, GREATEST(LEAST(salary*0.15, 500), 400) bonus
+FROM employees
+WHERE department_id IN (30, 10)
+ORDER BY last_name;
+
+/* To remember the comparison rules for trailing and leading space in character
+literals, think “leading equals least.” */
+
+-- NULLIF(x1 , x2)
+/* This function returns NULL if x1 equals x2; otherwise, 
+it returns x1. If x1 is NULL, NULLIF returns NULL. */
+SELECT ename, mgr, comm
+		NULLIF(comm,0) test1,
+		NULLIF(0,comm) test2,
+		NULLIF(mgr,comm) test3
+FROM scott.emp
+WHERE empno IN (7844,7839,7654,7369);
+
+-- SYS_GUID()
+/* GUID() returns a 32-bit hexadecimal representation of the 16-byte RAW value. */
+SELECT SYS_GUID() FROM DUAL;
+
+-- UID
+/* returns the integer user ID for the current user connected to
+the session. */
+SELECT username, account_status
+FROM dba_users
+WHERE user_id = UID;
+
+-- USER
+/* returns a character string containing the username for the
+current user.*/
+SELECT default_tablespace, temporary_tablespace
+FROM dba_users
+WHERE username = USER;
