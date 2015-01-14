@@ -233,3 +233,133 @@ SELECT first_name, salary,
 	WIDTH_BUCKET(salary, 2500, 11000, 10) hist
 FROM employees
 WHERE first_name like ‘J%’;
+
+--*** Using Single-Row Date Functions
+
+-- Date-Format Conversion
+SELECT SYSDATE FROM dual;
+ALTER SESSION SET NLS_DATE_FORMAT=’DD-Mon-YYYY HH24:MI:SS’;
+
+-- SYSDATE
+/* returns the current date and time to the second for the
+operating-system host where the database resides. The value is returned in a DATE datatype. */
+SELECT SYSDATE FROM dual;
+
+-- SYSTIMESTAMP
+/* returns a TIMESTAMP WITH TIME ZONE for
+the current database date and time (the time of the host server where the database resides)*/
+SELECT SYSDATE, SYSTIMESTAMP FROM dual;
+
+-- LOCALTIMESTAMP([p])
+/* returns the current date and time in the session’s time zone to p digits
+of precision. p can be 0 to 9 and defaults to 6. */
+SELECT SYSTIMESTAMP, LOCALTIMESTAMP FROM dual;
+
+-- ADD_MONTHS(d, i)
+/* This function returns the date d plus i months. */
+SELECT SYSDATE, ADD_MONTHS(SYSDATE, -1) PREV_MONTH,
+		ADD_MONTHS(SYSDATE, 12) NEXT_YEAR
+FROM dual;
+
+-- CURRENT_DATE
+/* returns the current date in the Gregorian calendar for the session’s (client) time zone.*/
+ALTER SESSION SET NLS_DATE_FORMAT='DD-Mon-YYYY HH24:MI:SS';
+SELECT SYSDATE, CURRENT_DATE FROM dual;
+
+ALTER SESSION SET TIME_ZONE = 'US/Eastern';
+SELECT SYSDATE, CURRENT_DATE FROM dual;
+
+-- CURRENT_TIMESTAMP([p])
+/* returns the current date and time in the session’s time zone to p digits
+of precision. p can be an integer 0 through 9 and defaults to 6 */
+SELECT CURRENT_DATE, CURRENT_TIMESTAMP FROM dual;
+
+-- DBTIMEZONE
+/* returns the database’s time zone, as set by the latest CREATE DATABASE or ALTER
+DATABASE SET TIME_ZONE statement */
+SELECT DBTIMEZONE FROM dual;
+
+-- EXTRACT(c FROM dt)
+/* extracts and returns the specified component c of date/time or interval
+expression dt. The valid components are YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, TIMEZONE_
+HOUR, TIMEZONE_MINUTE, TIMEZONE_REGION, and TIMEZONE_ABBR. */
+SELECT SYSDATE, EXTRACT(YEAR FROM SYSDATE) year_d
+FROM dual;
+
+SELECT LOCALTIMESTAMP,
+		EXTRACT(YEAR FROM LOCALTIMESTAMP) YEAR_TS,
+		EXTRACT(DAY FROM LOCALTIMESTAMP) DAY_TS,
+		EXTRACT(SECOND FROM LOCALTIMESTAMP) SECOND_TS
+FROM dual;
+
+-- FROM_TZ(ts, tz)
+/* returns a TIMESTAMP WITH TIME ZONE for the timestamp ts using
+time zone value tz. */
+SELECT LOCALTIMESTAMP, FROM_TZ(LOCALTIMESTAMP, 'Japan') Japan,
+FROM_TZ(LOCALTIMESTAMP, '-5:00') Central
+FROM dual;
+
+-- LAST_DAY(d)
+/* This function returns the last day
+of the month for the date d. The return datatype is DATE. */
+SELECT SYSDATE,
+		LAST_DAY(SYSDATE) END_OF_MONTH,
+		LAST_DAY(SYSDATE)+1 NEXT_MONTH
+FROM dual;
+
+-- MONTHS_BETWEEN(d1, d2)
+/* This function returns the number of months that d2 is later than d1.*/
+SELECT MONTHS_BETWEEN('31-MAR-08', '30-SEP-08') E1,
+	   MONTHS_BETWEEN('11-MAR-08', '30-SEP-08') E2,
+	   MONTHS_BETWEEN('01-MAR-08', '30-SEP-08') E3,
+	   MONTHS_BETWEEN('31-MAR-08', '30-SEP-07') E4
+FROM dual;
+
+-- NEW_TIME(d>, tz1, tz2)
+/* This function returns the date in time zone tz2 for date d in
+time zone tz1. */
+SELECT SYSDATE Dallas, NEW_TIME(SYSDATE, 'CDT', 'HDT') Hawaii
+FROM dual;
+
+-- NEXT_DAY(d, dow) dow is a text string containing the full or abbreviated day of the week
+/* This function returns the next dow following d.*/
+SELECT SYSDATE, NEXT_DAY(SYSDATE,'Thu') NEXT_THU,
+NEXT_DAY('31-OCT-2008', 'Tue') Election_Day
+FROM dual;
+
+-- ROUND(<d> [,fmt])
+/* This function returns d rounded to the granularity specified
+in fmt. If fmt is omitted, d is rounded to the nearest day. */
+SELECT SYSDATE, ROUND(SYSDATE,'HH24') ROUND_HOUR,
+	ROUND(SYSDATE) ROUND_DATE, ROUND(SYSDATE,'MM') NEW_MONTH,
+	ROUND(SYSDATE,'YY') NEW_YEAR
+FROM dual;
+
+-- SESSIONTIMEZONE
+/* returns the database’s time zone offset as per
+the last ALTER SESSION statement. SESSIONTIMEZONE will default to DBTIMEZONE if it is not
+changed with an ALTER SESSION statement. */
+SELECT DBTIMEZONE, SESSIONTIMEZONE
+FROM dual;
+
+-- SYS_EXTRACT_UTC(ts)
+/* This function returns the UTC (GMT) time for the timestamp ts. */
+SELECT CURRENT_TIMESTAMP local,
+SYS_EXTRACT_UTC(CURRENT_TIMESTAMP) GMT
+FROM dual;
+
+-- TRUNC(d [,fmt])
+/* This function returns d truncated to the granularity specified
+in fmt. */
+SELECT SYSDATE, TRUNC(SYSDATE,'HH24') CURR_HOUR,
+TRUNC(SYSDATE) CURR_DATE, TRUNC(SYSDATE,'MM') CURR_MONTH,
+TRUNC(SYSDATE,'YY') CURR_YEAR
+FROM dual;
+
+-- TZ_OFFSET(tz)
+/* This function returns the numeric time zone offset for a textual time zone name. */
+SELECT TZ_OFFSET(SESSIONTIMEZONE) NEW_YORK,
+TZ_OFFSET('US/Pacific') LOS_ANGELES,
+TZ_OFFSET('Europe/London') LONDON,
+TZ_OFFSET('Asia/Singapore') SINGAPORE
+FROM dual;
