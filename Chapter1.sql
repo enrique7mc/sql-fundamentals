@@ -19,7 +19,7 @@ FROM employees;
 -- The DUAL table
 SELECT * FROM dual;
 SELECT SYSDATE, USER FROM dual;
-SELECT 'I''m ' || user || 'Today is ' || SYSDATE;
+SELECT 'I''m ' || user || ' Today is ' || SYSDATE FROM DUAL;
 
 -- ***Limiting rows***
 --Employees who work for dept 90
@@ -137,7 +137,7 @@ AND last_name NOT LIKE 'S%';
 -- Escaping the _ character
 SELECT job_id, job_title
 FROM jobs
-WHERE job_id like 'AC\_%' ESCAPE '\'';
+WHERE job_id like 'AC\_%' ESCAPE '\';  --'
 
 -- ***Sorting rows
 
