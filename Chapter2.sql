@@ -71,10 +71,10 @@ WHERE department_id = 30;
 c1 with the first character of each word in uppercase 
 and all others in lowercase.*/
 SELECT 'prueba de initcap', INITCAP('prueba de initcap') 
-from dual;
+FROM dual;
 
 SELECT 'otra*prueba*initcap', INITCAP('otra*prueba*initcap') 
-from dual;
+FROM dual;
 
 -- INSTR(c1,c2[,i[,j]])
 /* This function returns the numeric character position in c1 where the j
@@ -83,10 +83,172 @@ a 0 when the requested string is not found. If i is negative, the search is perf
 from right to left, but the position is still counted from left to right. Both i and j
 default to 1, and j cannot be negative. */
 
+SELECT INSTR(3 + 0.14, '.') 
+FROM dual;
 
--- TODO: complete string functions
+SELECT INSTR(sysdate, 'DEC') 
+FROM dual;
+
+SELECT INSTR('1#3#5#7#9#', '#') 
+FROM dual;
+
+SELECT INSTR('1#3#5#7#9#', '#', 5) 
+FROM dual;
+
+SELECT INSTR('1#3#5#7#9#', '#', 3, 4) 
+FROM dual;
+
+SELECT * FROM departments
+WHERE INSTR(department_name, 'on') = 2;
+
+-- LENGTH(c)
+/* This function returns the numeric length in characters of c. 
+If c is NULL, a NULL is returned.*/
+
+SELECT LENGTH(1 + 2.14 || ' approximates pi') 
+FROM dual;
+
+SELECT LENGTH(SYSDATE) 
+FROM dual;
+
+SELECT * FROM countries
+WHERE LENGTH(country_name) > 10;
+
+-- LOWER(c)
+/* This function returns the character string c with all 
+characters in lowercase. */
+SELECT LOWER('Hola mundo') 
+FROM dual;
+
+SELECT LOWER(100 + 100) 
+FROM dual;
+
+SELECT LOWER('The SUM ' || '100+100' || ' = 200') 
+FROM dual;
+
+SELECT LOWER(SYSDATE) 
+FROM dual;
+
+SELECT LOWER(SYSDATE + 2) 
+FROM dual;
+
+SELECT first_name, last_name, LOWER(last_name)
+FROM employees
+WHERE LOWER(last_name) LIKE '%ur%';
+
+-- LPAD(c1, i [,c2])
+/* This function returns the character string c1 expanded in length to i characters,
+using c2 to fill in space as needed on the left side of c1. If c1 is more than i characters, it is
+truncated to i characters. c2 defaults to a single space */
+
+SELECT LPAD(1000 + 200.55, 14, '*') 
+FROM dual;
+
+SELECT LPAD(SYSDATE, 14, '$#') 
+FROM dual;
+
+SELECT LPAD(last_name, 10) lpad_lname,
+	   LPAD(salary, 8, '*') lpad_salary
+FROM employees
+WHERE last_name like 'J%';
+
+-- RPAD(c1, i [, c2])
+/* This function returns the character string c1 expanded in length to i characters,
+using c2 to fill in space as needed on the right side of c1. If c1 is more than i characters, it
+is truncated to i characters. c2 defaults to a single space.*/
+
+SELECT RPAD(1000 + 200.55, 14, '*')
+FROM dual;
+
+SELECT RPAD(SYSDATE, 4, '$#')
+FROM dual;
+
+SELECT RPAD(first_name, 15, '.') rpad_fname, LPAD(job_id, 12, '.') lpad_jid
+FROM employees
+WHERE first_name LIKE 'B%';
+
+-- REPLACE(c1, c2 [,c3])
+/* This function returns c1 with all occurrences of c2 replaced with c3. c3 defaults to NULL. If
+c3 is NULL, all occurrences of c2 are removed. If c2 is NULL, then c1 is returned unchanged.
+If c1 is NULL, then NULL is returned. */
+
+SELECT REPLACE('uptown', 'up', 'down') 
+FROM dual;
+
+SELECT REPLACE(10000-3, '9', '85') 
+FROM dual;
+
+SELECT REPLACE(SYSDATE, '01', '08') 
+FROM dual
+
+SELECT last_name, salary, REPLACE(salary, '0', '000') "Dream salary"
+FROM employees
+WHERE job_id = 'SA_MAN';
+
+-- SUBSTR(c1, x [, y])
+/* This function returns the portion of c1 that is y characters long, beginning
+at position x. If x is negative, the position is counted backward (that is, right to left). This
+function returns NULL if y is 0 or negative. y defaults to the remainder of string c1. */
+
+SELECT SUBSTR(10000-3, 3, 2)
+FROM dual;
+
+SELECT SUBSTR(SYSDATE, 4, 3)
+FROM dual;
+
+SELECT SUBSTR('1#3#5#7#9#', 5)
+FROM dual;
+
+SELECT SUBSTR('1#3#5#7#9#', 5, 6)
+FROM dual;
+
+SELECT SUBSTR('1#3#5#7#9#', -3, 2)
+FROM dual;
+
+SELECT 'Advertising Team Member' || SUBSTR(first_name, 1, 1)
+|| '. ' || last_name "Name"
+FROM employees
+WHERE SUBSTR(job_id, 1, 2) = 'AD';
+
+-- Execute as sys
+-- extract only the filename from dba_data_files without the path name
+SELECT file_name, 
+	   SUBSTR(file_name, INSTR(file_name,'\', -1,1)+1) name --'
+FROM dba_data_files;
+
+-- TRIM([[c1] c2 FROM ] c3)
+/* If present, c1 can be one of the following literals: LEADING, TRAILING, or BOTH. This function
+returns c3 with all c1 (leading, trailing, or both) occurrences of characters in c2 removed.
+A NULL is returned if any of c1, c2, or c3 is NULL. c1 defaults to BOTH. c2 defaults to a space
+character. c3 is the only mandatory argument. If c2or c3 is NULL, the function returns a NULL.*/
+
+SELECT TRIM('   fully padded   ') test1,
+	   TRIM('   left padded') test2,
+	   TRIM('right padded   ') test3
+FROM dual;
+
+SELECT TRIM(TRAILING 'e' from 1+2.14||' is pie') 
+FROM dual;
+
+SELECT TRIM(BOTH '*' from '*******Hidden*******') 
+FROM dual;
+
+-- UPPER(c)
+/* This function returns
+the character string c with all characters in uppercase.*/
+
+SELECT UPPER(1+2.14) 
+FROM dual;
+
+SELECT UPPER(SYSDATE) 
+FROM dual;
+
+SELECT * FROM countries
+WHERE UPPER(country_name) LIKE '%U%S%A%';
+
 
 --*** Using Single-Row Numeric Functions
+-- Most important are ROUND, TRUNC and MOD
 
 -- ABS(n)
 /*This function returns the absolute value of n.*/
@@ -151,7 +313,7 @@ SELECT LN(2.7) FROM dual;
 SELECT LOG(8,64), LOG(3,27), LOG(2,1024), LOG(2,8)
 FROM dual;
 
--- MOD(n1, n2)
+---- MOD(n1, n2)
 /* This function returns n1 modulo n2, or the remainder of n1 divided by n2. If n1 is negative, the result
 is negative. The sign of n2 has no effect on the result. If n2 is zero, the result is n1.*/
 SELECT MOD(14,5), MOD(8,2.5), MOD(-64,7), MOD(12,0)
@@ -171,14 +333,14 @@ SELECT REMAINDER(13,5), REMAINDER(12,5), REMAINDER(12.5, 5)
 FROM dual;
 
 SELECT REMAINDER(TO_BINARY_FLOAT(‘13.0’), 0) RBF
-from dual;
+FROM dual;
 
 /* The difference between MOD and REMAINDER is that MOD uses the FLOOR function, whereas
 REMAINDER uses the ROUND function in the formula. */
 SELECT MOD(13,5), MOD(12,5), MOD(12.5, 5)
 FROM dual;
 
--- ROUND(n1 [,n2])
+----- ROUND(n1 [,n2])
 /* This function returns n1 rounded to n2 digits of precision to the right of the decimal. If n2
 is negative, n1 is rounded to the left of the decimal. If n2 is omitted, the default is zero. */
 SELECT ROUND(123.489), ROUND(123.489, 2),
@@ -213,7 +375,7 @@ FROM dual;
 SELECT TANH( ACOS(-1) ) hyp_tan_of_pi
 FROM dual;
 
--- TRUNC(n1 [,n2])
+----- TRUNC(n1 [,n2])
 /* This function returns n1 truncated to n2 digits of precision to the right of the decimal. If n2
 is negative, n1 is truncated to the left of the decimal.*/
 SELECT TRUNC(123.489), TRUNC(123.489, 2),
@@ -235,10 +397,12 @@ FROM employees
 WHERE first_name like 'J%';
 
 --*** Using Single-Row Date Functions
+--Most important are ADD_MONTHS, MONTHS_BETWEEN, LAST_DAY, NEXT_DAY, 
+--ROUND, and TRUNC
 
 -- Date-Format Conversion
 SELECT SYSDATE FROM dual;
-ALTER SESSION SET NLS_DATE_FORMAT=’DD-Mon-YYYY HH24:MI:SS’;
+ALTER SESSION SET NLS_DATE_FORMAT='DD-Mon-YYYY HH24:MI:SS';
 
 -- SYSDATE
 /* returns the current date and time to the second for the
@@ -255,7 +419,7 @@ SELECT SYSDATE, SYSTIMESTAMP FROM dual;
 of precision. p can be 0 to 9 and defaults to 6. */
 SELECT SYSTIMESTAMP, LOCALTIMESTAMP FROM dual;
 
--- ADD_MONTHS(d, i)
+----- ADD_MONTHS(d, i)
 /* This function returns the date d plus i months. */
 SELECT SYSDATE, ADD_MONTHS(SYSDATE, -1) PREV_MONTH,
 		ADD_MONTHS(SYSDATE, 12) NEXT_YEAR
@@ -299,15 +463,15 @@ SELECT LOCALTIMESTAMP, FROM_TZ(LOCALTIMESTAMP, 'Japan') Japan,
 FROM_TZ(LOCALTIMESTAMP, '-5:00') Central
 FROM dual;
 
--- LAST_DAY(d)
+----- LAST_DAY(d)
 /* This function returns the last day
 of the month for the date d. The return datatype is DATE. */
 SELECT SYSDATE,
 		LAST_DAY(SYSDATE) END_OF_MONTH,
-		LAST_DAY(SYSDATE)+1 NEXT_MONTH
+		LAST_DAY(SYSDATE) + 1 NEXT_MONTH
 FROM dual;
 
--- MONTHS_BETWEEN(d1, d2)
+----- MONTHS_BETWEEN(d1, d2)
 /* This function returns the number of months that d2 is later than d1.*/
 SELECT MONTHS_BETWEEN('31-MAR-08', '30-SEP-08') E1,
 	   MONTHS_BETWEEN('11-MAR-08', '30-SEP-08') E2,
@@ -321,18 +485,18 @@ time zone tz1. */
 SELECT SYSDATE Dallas, NEW_TIME(SYSDATE, 'CDT', 'HDT') Hawaii
 FROM dual;
 
--- NEXT_DAY(d, dow) dow is a text string containing the full or abbreviated day of the week
+----- NEXT_DAY(d, dow) dow is a text string containing the full or abbreviated day of the week
 /* This function returns the next dow following d.*/
 SELECT SYSDATE, NEXT_DAY(SYSDATE,'Thu') NEXT_THU,
 NEXT_DAY('31-OCT-2008', 'Tue') Election_Day
 FROM dual;
 
--- ROUND(<d> [,fmt])
+----- ROUND(<d> [,fmt])
 /* This function returns d rounded to the granularity specified
 in fmt. If fmt is omitted, d is rounded to the nearest day. */
-SELECT SYSDATE, ROUND(SYSDATE,'HH24') ROUND_HOUR,
-	ROUND(SYSDATE) ROUND_DATE, ROUND(SYSDATE,'MM') NEW_MONTH,
-	ROUND(SYSDATE,'YY') NEW_YEAR
+SELECT SYSDATE, ROUND(SYSDATE, 'HH24') ROUND_HOUR,
+	ROUND(SYSDATE) ROUND_DATE, ROUND(SYSDATE, 'MM') NEW_MONTH,
+	ROUND(SYSDATE, 'YY') NEW_YEAR
 FROM dual;
 
 -- SESSIONTIMEZONE
@@ -348,12 +512,12 @@ SELECT CURRENT_TIMESTAMP local,
 SYS_EXTRACT_UTC(CURRENT_TIMESTAMP) GMT
 FROM dual;
 
--- TRUNC(d [,fmt])
+----- TRUNC(d [,fmt])
 /* This function returns d truncated to the granularity specified
 in fmt. */
-SELECT SYSDATE, TRUNC(SYSDATE,'HH24') CURR_HOUR,
-TRUNC(SYSDATE) CURR_DATE, TRUNC(SYSDATE,'MM') CURR_MONTH,
-TRUNC(SYSDATE,'YY') CURR_YEAR
+SELECT SYSDATE, TRUNC(SYSDATE, 'HH24') CURR_HOUR,
+TRUNC(SYSDATE) CURR_DATE, TRUNC(SYSDATE, 'MM') CURR_MONTH,
+TRUNC(SYSDATE, 'YY') CURR_YEAR
 FROM dual;
 
 -- TZ_OFFSET(tz)
@@ -363,8 +527,6 @@ TZ_OFFSET('US/Pacific') LOS_ANGELES,
 TZ_OFFSET('Europe/London') LONDON,
 TZ_OFFSET('Asia/Singapore') SINGAPORE
 FROM dual;
-
-
 
 --*** Using Single-Row Conversion Functions
 
@@ -404,15 +566,15 @@ WHERE rowid = CHARTOROWID('AAARAgAAFAAAABYAA9');
 -- CONVERT(c, dset [,sset]) dset and sset are character-set names
 /* This function returns the character string c converted
 from the source character set sset to the destination character set dset */
-select convert (‘vis-à-vis’,’AL16UTF16’,’AL32UTF8’)
-from dual;
+SELECT CONVERT('vis-à-vis', 'AL16UTF16', 'AL32UTF8')
+FROM dual;
 
 -- NUMTODSINTERVAL(x , c)
 /* This function converts the number x into an INTERVAL
 DAY TO SECOND datatype. */
 SELECT SYSDATE,
-		SYSDATE+NUMTODSINTERVAL(2,’HOUR’) "2 hours later",
-		SYSDATE+NUMTODSINTERVAL(30,’MINUTE’) "30 minutes later"
+		SYSDATE + NUMTODSINTERVAL(2, 'HOUR') "2 hours later",
+		SYSDATE + NUMTODSINTERVAL(30, 'MINUTE') "30 minutes later"
 FROM dual;
 
 -- NUMTOYMINTERVAL(x , c)
