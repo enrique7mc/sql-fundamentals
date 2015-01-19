@@ -246,7 +246,7 @@ FROM dual;
 SELECT * FROM countries
 WHERE UPPER(country_name) LIKE '%U%S%A%';
 
-
+-----------------------------------------------------------------------------------------
 --*** Using Single-Row Numeric Functions
 -- Most important are ROUND, TRUNC and MOD
 
@@ -396,6 +396,7 @@ SELECT first_name, salary,
 FROM employees
 WHERE first_name like 'J%';
 
+-----------------------------------------------------------------------------------------
 --*** Using Single-Row Date Functions
 --Most important are ADD_MONTHS, MONTHS_BETWEEN, LAST_DAY, NEXT_DAY, 
 --ROUND, and TRUNC
@@ -528,7 +529,28 @@ TZ_OFFSET('Europe/London') LONDON,
 TZ_OFFSET('Asia/Singapore') SINGAPORE
 FROM dual;
 
+-----------------------------------------------------------------------------------------
 --*** Using Single-Row Conversion Functions
+
+-- Implicit conversion functions
+
+SELECT LENGTH(1234567890) 
+FROM dual;
+
+SELECT LENGTH(SYSDATE) 
+FROM dual;
+
+SELECT mod('11',2) 
+FROM dual;
+
+SELECT mod('11.123',2) 
+FROM dual;
+
+SELECT mod('11.123.456',2) 
+FROM dual;
+
+SELECT mod('$11',2) 
+FROM dual;
 
 -- ASCIISTR(c1)
 /* This function returns
@@ -630,8 +652,29 @@ FROM dual;
 DOUBLE may not be exact since BINARY_FLOAT and BINARY_DOUBLE
 use binary precision, whereas NUMBER uses decimal precision*/
 
--- TO_CHAR(<expr> [,<fmt >[,<nlsparm>] ])
+
+----- TO_CHAR(<expr> [,<fmt >[,<nlsparm>] ])
 /* This function returns expr converted into a character string (the VARCHAR2 datatype) */
+SELECT TO_CHAR(00001) 
+FROM dual;
+
+SELECT TO_CHAR(00001,'0999999')
+FROM dual;
+
+SELECT job_title, max_salary, TO_CHAR(max_salary, '$99,999.99'),
+	TO_CHAR(max_salary, '$9,999.99')
+FROM jobs
+WHERE UPPER(job_title) LIKE '%PRESIDENT%';
+
+SELECT TO_CHAR(SYSDATE)
+FROM dual;
+
+SELECT TO_CHAR(SYSDATE,'Month')
+FROM dual;
+
+SELECT last_name, TO_CHAR(hire_date, 'fmDD Month YYYY') "Hire Date"
+FROM employees;
+
 SELECT TO_CHAR(SYSDATE,'Day Ddspth,Month YYYY'
  	,'NLS_DATE_LANGUAGE=German') Today_Heute
 FROM dual;
@@ -642,20 +685,40 @@ FROM dual;
 /* For any of the numeric codes, the ordinal and/or spelled-out representation can be displayed
 with the modifier codes th (for ordinal) and sp (for spelled out). Here is an example: */
 SELECT SYSDATE,
-TO_CHAR(SYSDATE,'Mmspth') Month,
-TO_CHAR(SYSDATE,'DDth') Day,
-TO_CHAR(SYSDATE,'Yyyysp') Year
+		TO_CHAR(SYSDATE,'Mmspth') Month,
+		TO_CHAR(SYSDATE,'DDth') Day,
+		TO_CHAR(SYSDATE,'Yyyysp') Year
 FROM dual;
 
--- TO_DATE(<c> [,<fmt> [,<nlsparm>] ])
+----- TO_DATE(<c> [,<fmt> [,<nlsparm>] ])
 /* This function returns c converted into the DATE datatype. */
-alter session set nls_date_format = 'DD-MON-RR HH24:MI:SS';
+ALTER SESSION SET nls_date_format = 'DD-MON-RR HH24:MI:SS';
 
-SELECT TO_DATE('30-SEP-2007', 'DD/MON/YY') DateExample
+SELECT TO_DATE('25-DEC-2010')
 FROM dual;
 
-SELECT TO_DATE('SEP-2007 13', 'MON/YYYY HH24') DateExample
+SELECT TO_DATE('25-DEC')
 FROM dual;
+
+SELECT TO_DATE('25-DEC', 'DD-MON')
+FROM dual;
+
+SELECT TO_DATE('25-DEC-2010 18:03:45', 'DD-MON-YYYY HH24:MI:SS')
+FROM dual;
+
+SELECT TO_DATE('25-DEC-10', 'fxDD-MON-YYYY')
+FROM dual; 
+
+SELECT TO_DATE('30-SEP-2007', 'DD/MON/YY')
+FROM dual;
+
+SELECT TO_DATE('SEP-2007 13', 'MON/YYYY HH24')
+FROM dual;
+
+SELECT first_name, last_name, hire_date
+FROM employees
+WHERE hire_date > TO_DATE('01/12/2000', 'MM/DD/YYYY')
+ORDER BY hire_date;
 
 --** Converting Numbers to Words
 SELECT TO_CHAR(TO_DATE(&NUM, 'J'), 'jsp') num_to_spell
@@ -668,9 +731,17 @@ SELECT SYSDATE,
 		SYSDATE+TO_DSINTERVAL('030 00:00:00') "+30 days"
 FROM dual;
 
--- TO_NUMBER(<expr> [,<fmt> [,<nlsparm>] ])
+----- TO_NUMBER(<expr> [,<fmt> [,<nlsparm>] ])
 /* This function returns the numeric value represented by expr. */
-SELECT TO_NUMBER('234.89'), TO_NUMBER(1E-3) FROM dual;
+
+SELECT TO_NUMBER('$1,000.55') -- Invalid
+FROM dual;
+
+SELECT TO_NUMBER('$1,000.55','$999,999.99') 
+FROM dual;
+
+SELECT TO_NUMBER('234.89'), TO_NUMBER(1E-3) 
+FROM dual;
 
 -- TO_TIMESTAMP(<c> [,<fmt> [,<nlsparm>] ])
 /* The return value is of the TIMESTAMP datatype. */
@@ -696,7 +767,14 @@ FROM dual;
 SELECT UNISTR('\00A3'), UNISTR('\00F1'), UNISTR('ca\00F1on')
 FROM dual;
 
--- DECODE(x ,m1, r1 [,m2 ,r2]…[,d])
+-----------------------------------------------------------------------------------------
+--*** Function nesting
+SELECT LENGTH(TO_CHAR(TO_DATE('28/10/09', 'DD/MM/RR'),'fmMonth'))
+FROM dual;
+
+--*** Other functions
+
+----- DECODE(x ,m1, r1 [,m2 ,r2]…[,d])
 /* x is an expression. m1
 is a matching expression to compare with x. If m1 is equivalent to x, then r1 is returned;
 otherwise, additional matching expressions (m2, m3, m4, and so on) are compared, if they
@@ -736,7 +814,7 @@ ORDER BY last_name;
 /* To remember the comparison rules for trailing and leading space in character
 literals, think “leading equals least.” */
 
--- NULLIF(x1 , x2)
+----- NULLIF(x1 , x2)
 /* This function returns NULL if x1 equals x2; otherwise, 
 it returns x1. If x1 is NULL, NULLIF returns NULL. */
 SELECT ename, mgr, comm
