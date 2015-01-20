@@ -1,0 +1,117 @@
+/*** Using Joins and Subqueries ***/
+
+-- Canada's region
+-- Natural join
+SELECT region_name
+FROM regions NATURAL JOIN countries
+WHERE country_name = 'Canada';
+
+-- Countries belonging to Americas
+SELECT country_name
+FROM countries NATURAL JOIN regions
+WHERE region_name = 'Americas';
+
+-- Using join syntax
+SELECT region_name
+FROM regions JOIN countries
+USING (region_id)
+WHERE country_name = 'Canada';
+
+-- Join on syntax
+SELECT country_name
+FROM countries JOIN regions
+ON (countries.region_id = regions.region_id)
+WHERE region_name = 'Americas';
+
+--*** Cross join
+SELECT COUNT(*)
+FROM countries;
+
+SELECT COUNT(*)
+FROM regions;
+
+SELECT COUNT(*)
+FROM regions
+CROSS JOIN countries;
+
+SELECT *
+FROM regions
+CROSS JOIN countries
+WHERE country_id = 'CA';
+
+--*** Oracle syntax
+
+-- Countries with their region (natural join)
+SELECT region_name, country_name
+FROM regions, countries
+WHERE regions.region_id = countries.region_id;
+
+-- Employees and departments without employees
+-- Oracle syntax for nonequijoins
+SELECT last_name, department_name
+FROM employees, departments
+WHERE  employees.department_id(+) = departments.department_id;
+
+-- Cartesian product
+SELECT * 
+FROM regions, countries;
+
+--*** Resolving ambiguous column names
+
+-- The column in USING and NATURAL JOIN can't be qualified
+SELECT emp.employee_id, department_id, emp.manager_id,
+	departments.manager_id
+FROM employees emp JOIN departments
+USING(department_id)
+WHERE department_id > 80;
+
+--*** NATURAL JOIN
+/* SELECT table1.column, table2.column
+FROM table1
+NATURAL JOIN table2; */
+SELECT *
+FROM locations NATURAL JOIN countries;
+
+-- Equivalent join
+SELECT * 
+FROM locations l, countries c
+WHERE l.country_id = c.country_id;
+
+-- No matching columns, cartesian join performed
+SELECT *
+FROM jobs NATURAL JOIN countries;
+
+-- Equivalent join
+SELECT *
+FROM jobs, countries;
+
+/* Warining: if the matching columns are not related or
+have different data types an error will be raised */
+
+/* Excercise 
+The JOB_HISTORY table shares three identically named columns with the
+EMPLOYEES table: EMPLOYEE_ID, JOB_ID, and DEPARTMENT_ID. You
+are required to describe the tables and fetch the EMPLOYEE_ID, JOB_ID,
+DEPARTMENT_ID, LAST_NAME, HIRE_DATE, and END_DATE values for all
+rows retrieved using a pure natural join. Alias the EMPLOYEES table as EMP and
+the JOB_HISTORY table as JH and use dot notation where possible.*/
+
+SELECT employee_id, job_id, department_id,
+e.last_name, e.hire_date, jh.end_date
+FROM job_history jh NATURAL JOIN employees e;
+
+--*** Natural JOIN USING Clause
+/* SELECT table1.column, table2.column
+FROM table1
+JOIN table2 USING (join_column1, join_column2…); */
+
+-- It is illegal to put NATURAL and USING in the same query
+
+SELECT *
+FROM locations JOIN countries
+USING(country_id);
+
+SELECT emp.last_name, emp.department_id, 
+	jh.end_date, job_id, employee_id
+FROM job_history jh JOIN employees emp
+USING (job_id, employee_id);
