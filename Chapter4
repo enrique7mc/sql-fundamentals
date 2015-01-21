@@ -115,3 +115,104 @@ SELECT emp.last_name, emp.department_id,
 	jh.end_date, job_id, employee_id
 FROM job_history jh JOIN employees emp
 USING (job_id, employee_id);
+
+--***Natural JOIN ON Clause
+/* SELECT table1.column, table2.column
+FROM table1
+JOIN table2 ON (table1.column_name = table2.column_name);*/
+
+-- The ON and NATURAL keywords cannot appear together in a join clause.
+SELECT * 
+FROM departments d JOIN employees e 
+ON (e.employee_id = d.department_id);
+
+-- Equivalent join
+SELECT *
+FROM employees e, departments d
+WHERE e.employee_id = d.department_id;
+
+-- employees who worked for the organization and changed jobs.
+SELECT e.employee_id, e.last_name, j.start_date,
+	e.hire_date, j.end_date, j.job_id previous,
+	e.job_id current
+FROM job_history j JOIN employees e
+ON j.start_date = e.hire_date;
+
+/* Excercise 
+Each record in the DEPARTMENTS table has a MANAGER_ID column matching
+an EMPLOYEE_ID value in the EMPLOYEES table. You are required to produce a
+report with one column aliased as Managers. Each row must contain a sentence of the
+format FIRST_NAME LAST_NAME is manager of the DEPARTMENT_NAME
+department. */
+
+SELECT first_name || ' ' || last_name || ' is manager of the ' ||
+	department_name || ' department'
+FROM employees e JOIN departments d
+ON (e.employee_id = d.manager_id);
+
+--*** Multiple table JOINS
+
+-- List departments, their location, including country and region
+SELECT r.region_name, c.country_name, l.city, d.department_name
+FROM departments d 
+NATURAL JOIN locations l
+NATURAL JOIN countries c 
+NATURAL JOIN regions r;
+
+-- Equivalent join
+SELECT r.region_name, c.country_name, l.city, d.department_name
+FROM departments d 
+JOIN locations l on (d.location_id = l.location_id)
+JOIN countries c on (l.country_id = c.country_id)
+JOIN regions r on (c.region_id = r.region_id);
+
+-- Yet another equivalent join
+SELECT r.region_name, c.country_name, l.city, d.department_name
+FROM departments d
+JOIN locations l USING(location_id)
+JOIN countries c USING(country_id)
+JOIN regions r USING(region_id);
+
+-- Restrict rows with where or join on
+SELECT d.department_name, l.city 
+FROM departments d
+JOIN locations l ON (l.location_id = d.location_id)
+WHERE d.department_name LIKE 'P%';
+
+-- Equivalent join
+SELECT d.department_name, l.city 
+FROM departments d
+JOIN locations l ON l.location_id = d.location_id
+					AND d.department_name LIKE 'P%';
+
+/* list describing the top earning employees and 
+geographical information about their departments.*/
+SELECT r.region_name, c.country_name, l.city, d.department_name,
+	e.last_name, e.salary
+FROM employees e
+JOIN departments d ON (e.department_id = d.department_id AND salary > 12000)
+JOIN locations l ON (d.location_id = l.location_id)
+JOIN countries c ON (l.country_id = c.country_id)
+JOIN regions r ON (c.region_id = r.region_id);
+
+/* Remember the USING, ON, and NATURAL keywords are
+mutually exclusive in the context of the same join clause.*/
+
+--*** Nonequijoins
+/* A nonequijoin is specified using the JOIN…ON syntax, but the join condition
+contains an inequality operator instead of an equal sign. */
+
+/* SELECT table1.column, table2.column
+FROM table1
+[JOIN table2 ON (table1.column_name < table2.column_name)]|
+[JOIN table2 ON (table1.column_name > table2.column_name)]|
+[JOIN table2 ON (table1.column_name <= table2.column_name)]|
+[JOIN table2 ON (table1.column_name >= table2.column_name)]|
+[JOIN table2 ON (table1.column BETWEEN table2.col1 AND table2.col2)]|*/
+
+SELECT e.job_id current_job, last_name || ' can earn twice their salary by changing jobs to: ' ||
+	j.job_id options, e.salary current_salary, j.max_salary potential_max_salary
+FROM employees e
+JOIN jobs j ON (2 * e.salary < j.max_salary)
+WHERE e.salary > 5000
+ORDER BY last_name;
