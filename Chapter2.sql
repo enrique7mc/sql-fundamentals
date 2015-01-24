@@ -5,6 +5,10 @@
 -- NVL(x1, x2)
 /* The NVL function returns x2 if x1 is
 NULL. If x1 is not NULL, then x1 is returned. */
+SELECT last_name, NVL(department_id,0)
+FROM employees
+ORDER BY 2;
+
 SELECT first_name, salary, commission_pct,
 salary + (salary * commission_pct) compensation
 FROM employees
@@ -690,6 +694,20 @@ SELECT SYSDATE,
 		TO_CHAR(SYSDATE,'Yyyysp') Year
 FROM dual;
 
+/* Excercise 
+Assuming SYSDATE is 23/01/2015 generate the following formats 
+23-01-15                    
+twenty-three january two thousand fifteen                         
+JAN 23, 2015                    
+january twenty-third, fifteenth           
+TWENTY FIFTEEN JANUARY FRIDAY 23
+
+SELECT TO_CHAR(SYSDATE, 'DD-MM-YY') FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'fmddsp month yyyysp') FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'fmMON DD, YYYY') FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'fmmonth ddthsp, yyspth') FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'YEAR fmMONTH DAY DD') FROM DUAL;*/
+
 ----- TO_DATE(<c> [,<fmt> [,<nlsparm>] ])
 /* This function returns c converted into the DATE datatype. */
 ALTER SESSION SET nls_date_format = 'DD-MON-RR HH24:MI:SS';
@@ -734,7 +752,7 @@ FROM dual;
 ----- TO_NUMBER(<expr> [,<fmt> [,<nlsparm>] ])
 /* This function returns the numeric value represented by expr. */
 
-SELECT TO_NUMBER('$1,000.55') -- Invalid
+SELECT TO_NUMBER('$1,000.55') -- Invalid because $
 FROM dual;
 
 SELECT TO_NUMBER('$1,000.55','$999,999.99') 
