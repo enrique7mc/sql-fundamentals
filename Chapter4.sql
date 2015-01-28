@@ -216,3 +216,96 @@ FROM employees e
 JOIN jobs j ON (2 * e.salary < j.max_salary)
 WHERE e.salary > 5000
 ORDER BY last_name;
+
+--*** Self join
+SELECT e.last_name employee, e.employee_id, e.manager_id, m.last_name manager,
+	e.department_id
+FROM employees e
+JOIN employees m ON (e.manager_id = m.employee_id)
+WHERE e.department_id IN (10, 20, 30)
+ORDER BY e.department_id;
+
+--*** Left outer join
+/* A left outer join between the source and target tables returns the results of an
+inner join as well as rows from the source table excluded by that inner join. */
+
+/* SELECT table1.column, table2.column
+FROM table1
+LEFT OUTER JOIN table2
+ON (table1.column = table2.column); */
+
+SELECT e.employee_id, e.department_id EMP_DEPT_ID,
+	d.department_id DEPT_DEPT_ID, d.department_name
+FROM departments d 
+LEFT OUTER JOIN employees e ON (d.DEPARTMENT_ID=e.DEPARTMENT_ID)
+WHERE d.department_name LIKE 'P%';
+
+SELECT e.employee_id, e.department_id EMP_DEPT_ID,
+	d.department_id DEPT_DEPT_ID, d.department_name
+FROM departments d 
+JOIN employees e ON (d.DEPARTMENT_ID=e.DEPARTMENT_ID)
+WHERE d.department_name LIKE 'P%';
+
+--*** Right outer join
+/* A right outer join between the source and target tables returns the results of an inner join
+as well as rows from the target table excluded by that inner join.*/
+
+/* SELECT table1.column, table2.column
+FROM table1
+RIGHT OUTER JOIN table2
+ON (table1.column = table2.column);*/
+
+SELECT e.last_name, d.department_name 
+FROM departments d
+RIGHT OUTER JOIN employees e
+ON (e.department_id=d.department_id)
+WHERE e.last_name LIKE 'G%';
+
+SELECT DISTINCT jh.job_id "Jobs in job history", e.job_id "jobs in employees"
+FROM job_history jh
+RIGHT OUTER JOIN employees e ON (jh.job_id = e.job_id)
+ORDER BY jh.job_id;
+
+--*** Full outer join
+/* SELECT table1.column, table2.column
+FROM table1
+FULL OUTER JOIN table2
+ON (table1.column = table2.column); */
+
+SELECT e.last_name, d.department_name
+FROM departments d 
+FULL OUTER JOIN employees e
+ON (e.department_id = d.department_id)
+WHERE e.department_id IS NULL;
+
+--*** Cartesian product
+/* A Cartesian product freely associates the rows from table1 with every row
+in table2. If table1 and table2 contain x and y number of rows, respectively,
+the Cartesian product will contain x times y number of rows. */
+
+/* SELECT table1.column, table2.column
+FROM table1
+CROSS JOIN table2;*/
+
+SELECT * 
+FROM jobs 
+CROSS JOIN job_history;
+
+SELECT * 
+FROM jobs j 
+CROSS JOIN job_history jh
+WHERE j.job_id='AD_PRES';
+
+SELECT r.region_name, c.country_name 
+FROM regions r CROSS JOIN countries c
+WHERE r.region_id IN (3, 4) 
+ORDER BY region_name, country_name;
+
+SELECT COUNT(*) 
+FROM employees;
+
+SELECT COUNT(*)
+FROM departments;
+
+SELECT COUNT(*)
+FROM employees CROSS JOIN departments;
