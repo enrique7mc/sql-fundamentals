@@ -109,3 +109,93 @@ WHERE TO_CHAR(HIRE_DATE,'YYYY') = TO_CHAR(SYSDATE, 'YYYY');
 	1° de enero de 2011 */
 
 SELECT SYSDATE - to_date('01-jan-2011') FROM DUAL
+
+
+------ AGGREGATE FUNCTIONS AND GROUP BY CLAUSE
+/* 22. Mostrar cuantos empleados por cada mes del año actual
+	han ingresado a la compañia*/
+
+SELECT TO_CHAR(HIRE_DATE,'MM'), COUNT (*) FROM EMPLOYEES 
+WHERE TO_CHAR(HIRE_DATE,'YYYY') = TO_CHAR(SYSDATE,'YYYY') 
+GROUP BY TO_CHAR(HIRE_DATE,'MM');
+
+/* 23. Mostrar el manager_id y cuantos empleados tiene a su cargo*/
+
+SELECT MANAGER_ID, COUNT(*) FROM EMPLOYEES GROUP BY MANAGER_ID;
+
+/* 24. Mostrar el employee_id y la fecha en que terminó su
+	puesto anterior (end_date)*/
+
+SELECT EMPLOYEE_ID, MAX(END_DATE) FROM JOB_HISTORY GROUP BY EMPLOYEE_ID;
+
+/* 25. Mostrar la cantidad de empleados que ingresaron en un día
+	de mes mayor a 15*/
+
+SELECT COUNT(*) FROM EMPLOYEES WHERE TO_CHAR(HIRE_DATE,'DD') > 15;
+
+/* 26. Mostrar el country_id y el número de ciudades que hay
+	en ese país*/
+
+SELECT COUNTRY_ID,  COUNT(*)  FROM LOCATIONS GROUP BY COUNTRY_ID;
+
+/* 27. Mostrar el promedio de salario de los empleados por departamento
+	que tengan asignado un porcentaje de comisión */
+
+SELECT DEPARTMENT_ID, AVG(SALARY) FROM EMPLOYEES 
+WHERE COMMISSION_PCT IS NOT NULL GROUP BY DEPARTMENT_ID;
+
+/* 28. Mostrar el job_id, número de empleados, suma de salarios
+	y diferencia del mayor y el menor salario por puesto (job_id)*/
+
+SELECT JOB_ID, COUNT(*), SUM(SALARY), MAX(SALARY)-MIN(SALARY) SALARY 
+FROM EMPLOYEES GROUP BY JOB_ID;
+
+/* 29. Mostrar el job_id y el promedio de salarios para los puestos 
+	con promedio de salario	mayor a 10000*/
+
+SELECT JOB_ID, AVG(SALARY) FROM EMPLOYEES 
+GROUP BY JOB_ID 
+HAVING AVG(SALARY) > 10000;
+
+/* 30. Mostrar los años en que ingresaron más de 10 empleados*/
+
+SELECT TO_CHAR(HIRE_DATE,'YYYY') FROM EMPLOYEES 
+GROUP BY TO_CHAR(HIRE_DATE,'YYYY') 
+HAVING COUNT(EMPLOYEE_ID) > 10;
+
+/* 31. Mostrar los departamentos en los cuáles más de 5 empleados
+	tengan porcentaje de comisión */
+
+SELECT DEPARTMENT_ID FROM EMPLOYEES 
+WHERE COMMISSION_PCT IS NOT NULL
+GROUP BY DEPARTMENT_ID 
+HAVING COUNT(COMMISSION_PCT) > 5;
+
+/* 32. Mostrar el employee_id de los empleados que tuvieron 
+	más de un puesto en la compañía*/
+SELECT EMPLOYEE_ID 
+FROM JOB_HISTORY GROUP BY EMPLOYEE_ID HAVING COUNT(*) > 1;
+
+/* 33. Mostrar el job_id de los puestos que fueron ocupados
+	por más de tres empleados que hayan trabajado más de 100 días*/
+
+SELECT JOB_ID FROM JOB_HISTORY 
+WHERE END_DATE-START_DATE > 100 
+GROUP BY JOB_ID 
+HAVING COUNT(*) > 3;
+
+/* 34. Mostrar por departamento y año la cantidad de empleados 
+	que ingresaron*/
+
+SELECT DEPARTMENT_ID, TO_CHAR(HIRE_DATE,'YYYY'), COUNT(EMPLOYEE_ID) 
+FROM EMPLOYEES 
+GROUP BY DEPARTMENT_ID, TO_CHAR(HIRE_DATE, 'YYYY');
+ORDER BY DEPARTMENT_ID;
+
+/* 35. Mostrar los departament_id de los departamentos que tienen
+	managers que tienen a cargo más de 5 empleados */
+
+SELECT DISTINCT DEPARTMENT_ID
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID, MANAGER_ID 
+HAVING COUNT(EMPLOYEE_ID) > 5;
