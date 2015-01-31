@@ -125,6 +125,11 @@ GROUP BY department_id;
 
 --*** GROUP BY Clause
 
+-- Count of employees per department
+SELECT department_id, COUNT(*) "#Employees"
+FROM employees
+GROUP BY department_id;
+
 -- Average of salary per department
 SELECT AVG(salary), department_id
 FROM employees
@@ -165,6 +170,22 @@ FROM job_history;
 SELECT end_date, start_date, COUNT(*)
 FROM job_history
 GROUP BY end_date;
+
+-- Group by cannot use ordinal column notation
+SELECT department_id, COUNT(*) “#Employees”
+FROM employees
+GROUP BY 1;
+
+-- Group by cannot use column alias notation
+SELECT department_id di, COUNT(*) emp_cnt
+FROM employees
+GROUP BY di;
+
+-- Group by cannot appear within Where clause
+SELECT department_id, COUNT(*) emp_cnt
+FROM employees
+WHERE COUNT(*) > 10
+GROUP BY department_id;
 
 /* GROUP BY Golden Rule
 Any item in the SELECT list that is not a group function or a constant
