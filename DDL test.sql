@@ -10,7 +10,7 @@ CREATE TABLE autores(
 CREATE TABLE libros(
 	isbn VARCHAR2(13) PRIMARY KEY,
 	titulo VARCHAR2(255) NOT NULL,
-	sinopsis VARCHAR2(max),
+	sinopsis VARCHAR2(1000),
 	num_paginas NUMBER(4),
 	editorial_id NUMBER(4)
 );
@@ -32,5 +32,8 @@ REFERENCES autores(id);
 
 ALTER TABLE autores_libros
 ADD CONSTRAINT libro_fk FOREIGN KEY(libro_id)
-REFERENCES libros(id);
+REFERENCES libros(isbn);
 
+ALTER TABLE libros
+ADD CONSTRAINT libro_editorial_fk FOREIGN KEY(editorial_id)
+REFERENCES editoriales(id);
