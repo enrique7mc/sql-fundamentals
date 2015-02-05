@@ -601,3 +601,53 @@ SELECT w.last_name, w.hire_Date, m.last_name, m.hire_date
 FROM employees w, employees m
 WHERE w.manager_id = m.employee_id
   AND w.hire_date < m.hire_date;
+
+  /* Práctica: Managing Data in Different Time Zones */
+
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MON-YYYY HH24:MI:SS';
+
+SELECT SYSDATE FROM dual;
+
+SELECT TZ_OFFSET('US/Pacific-New') FROM dual;
+SELECT TZ_OFFSET('Singapore') FROM dual;
+SELECT TZ_OFFSET('Egypt') FROM dual;
+
+ALTER SESSION SET TIME_ZONE = '-7:00';
+
+SELECT CURRENT_DATE, CURRENT_TIMESTAMP,
+  LOCALTIMESTAMP
+  FROM dual;
+  
+ALTER SESSION SET TIME_ZONE = '+8:00';  
+
+SELECT CURRENT_DATE, CURRENT_TIMESTAMP,
+  LOCALTIMESTAMP
+  FROM dual;
+  
+SELECT DBTIMEZONE, SESSIONTIMEZONE FROM dual;
+
+SELECT last_name, EXTRACT(YEAR FROM hire_date)
+FROM employees
+WHERE department_id = 80;
+
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MON-YYYY';
+
+SELECT SYSDATE FROM dual;
+
+SELECT e.last_name,
+(CASE EXTRACT(YEAR FROM e.hire_date) WHEN 2004 THEN 'Needs Review'
+ELSE 'Not this year' END) AS "Review"
+FROM employees e
+ORDER BY e.hire_date;
+
+
+SELECT e.last_name, hire_date, SYSDATE,
+        (CASE
+          WHEN (SYSDATE - TO_YMINTERVAL('15-0')) >= hire_date
+            THEN '15 year of service'
+          WHEN (SYSDATE - TO_YMINTERVAL('10-0')) >= hire_date
+            THEN '10 years of service'
+          WHEN  (SYSDATE - TO_YMINTERVAL('5-0')) >= hire_date  
+            THEN '5 years of service'
+          ELSE 'Maybe next year' END) AS "Awards"
+FROM employees e;          

@@ -309,3 +309,257 @@ FROM departments;
 
 SELECT COUNT(*)
 FROM employees CROSS JOIN departments;
+
+
+
+--------------------------------------
+------Set Operators-------------------
+--------------------------------------
+
+-- Consider these two queries.
+
+SELECT last_name, hire_date
+FROM employees
+WHERE department_id = 90;
+
+SELECT last_name, hire_date
+FROM employees
+WHERE last_name LIKE 'K%';
+
+/* The UNION operator is used to return rows from either query, 
+	without any duplicate rows.*/
+
+SELECT last_name, hire_date
+FROM employees
+WHERE department_id = 90
+UNION
+SELECT last_name, hire_date
+FROM employees
+WHERE last_name LIKE 'K%';
+
+/* The UNION ALL operator does not sort or filter the result set; 
+	it returns all rows from both queries. */
+
+SELECT last_name, hire_date
+FROM employees
+WHERE department_id = 90
+UNION ALL
+SELECT last_name, hire_date
+FROM employees
+WHERE last_name LIKE 'K%';
+
+/* The INTERSECT operator is used to return the rows returned 
+	by both queries.*/
+
+SELECT last_name, hire_date
+FROM employees
+WHERE department_id = 90
+INTERSECT
+SELECT last_name, hire_date
+FROM employees
+WHERE last_name LIKE 'K%';
+
+/* The MINUS operatori returns rows from the first query but not 
+in the second query.*/
+
+-- There can be only one ORDER BY clause in the query at the very end
+
+SELECT last_name, hire_date
+FROM employees
+WHERE department_id = 90
+ORDER BY last_name -- error
+UNION ALL
+SELECT first_name, hire_date
+FROM employees
+WHERE first_name LIKE 'K%'
+ORDER BY first_name;
+
+/* You can use the column name or alias name used in the first query 
+	or positional notation in the ORDER BY clause.*/
+
+SELECT last_name, hire_date "Join Date"
+FROM employees
+WHERE department_id = 90
+UNION ALL
+SELECT first_name, hire_date
+FROM employees
+WHERE first_name LIKE 'K%'
+ORDER BY last_name, "Join Date";
+
+SELECT last_name, hire_date "Join Date"
+FROM employees
+WHERE department_id = 90
+UNION ALL
+SELECT first_name, hire_date
+FROM employees
+WHERE first_name LIKE 'K%'
+ORDER BY 1, 2;
+
+/* When using set operators, the number of columns in the SELECT clause
+of the queries appearing on either side of the set operator should be the
+same. The column datatypes should be compatible. If the datatypes are
+different, Oracle tries to do an implicit conversion of data.*/
+
+--------------------------
+--------Subqueries--------
+--------------------------
+
+----*** Single-row subqueries
+
+-- find the name of the employee with the highest salary
+
+SELECT last_name, first_name, salary
+FROM employees
+WHERE salary = (SELECT MAX(salary) FROM employees);
+
+-- find the names and salaries of employees who work in the accounting department
+SELECT last_name, first_name, salary
+FROM employees
+WHERE department_id = (SELECT department_id
+						FROM departments
+						WHERE department_name = 'Accounting');
+
+SELECT last_name, first_name, department_id
+FROM employees
+WHERE department_id < (SELECT MAX(department_id)
+						FROM departments
+						WHERE location_id = 1500)
+AND hire_date >= (SELECT MIN(hire_date)
+					FROM employees
+					WHERE department_id = 30);
+
+/* lists the latest hire dates by departments that have hired an employee after the first
+employee was hired in department 80 */
+
+SELECT department_id, MAX(hire_date)
+FROM employees
+GROUP BY department_id
+HAVING MAX(hire_date) > (SELECT MIN(hire_date)
+							FROM employees
+							WHERE department_id = 80);
+
+-- Thes queries will fail if the result have more than 1 row
+
+----*** Multi Row subqueries
+
+SELECT last_name, first_name, department_id
+FROM employees
+WHERE department_id = (SELECT department_id -- error
+						FROM employees
+						WHERE first_name = 'John');
+
+SELECT last_name, first_name, department_id
+FROM employees
+WHERE department_id IN (SELECT department_id -- correct
+						FROM employees
+						WHERE first_name = 'John');
+
+SELECT last_name, salary, department_id
+FROM employees
+WHERE salary >= ANY (SELECT salary FROM employees
+						WHERE department_id = 110)
+						AND department_id != 80;
+
+SELECT last_name, salary, department_id
+FROM employees
+WHERE salary > ALL (SELECT salary FROM employees
+					WHERE department_id = 110)
+					AND department_id != 80;
+
+--**** Subquery returns no rows
+
+SELECT last_name, first_name, salary
+FROM employees
+WHERE department_id = (SELECT department_id
+						FROM departments
+						WHERE department_name = 'No existe');
+
+SELECT first_name, last_name, salary
+FROM employees
+WHERE salary NOT IN (
+			SELECT salary
+			FROM employees
+			WHERE department_id = 30);
+
+/* The SQL does not return any rows because one of the rows returned 
+	by the inner query is NULL.*/
+
+SELECT first_name, last_name, salary
+FROM employees
+WHERE salary NOT IN (
+			SELECT salary
+			FROM employees
+			WHERE department_id = 30 -- solution
+			AND salary is NOT NULL);
+
+--**** Correlated subqueries
+
+/* Oracle performs a correlated subquery when the subquery references a column from a
+table referred to in the parent statement. A correlated subquery is evaluated once for each
+row processed by the parent statement.*/
+
+ -- List the highest-paid employee of each department is selected.
+
+SELECT department_id, last_name, salary
+FROM employees e1
+WHERE salary = (SELECT MAX(salary)
+				FROM employees e2
+				WHERE e1.department_id = e2.department_id)
+ORDER BY 1, 2, 3;
+
+SELECT last_name, first_name, department_id
+FROM employees e1
+WHERE EXISTS (SELECT *
+				FROM employees e2
+				WHERE first_name = 'John'
+				AND e1.department_id = e2.department_id);
+
+/* The column names in the parent queries are available for reference in
+subqueries. The column names from the tables in the subquery cannot be
+used in the parent queries. The scope is only the current query level and its
+subqueries.*/
+
+---**** Scalar subqueries
+/* A scalar subquery returns exactly one column value from one row. You can use scalar
+subqueries in most places where you would use a column name or expression*/
+
+-- Case expression
+SELECT city, country_id, (CASE
+	WHEN country_id IN (SELECT country_id
+						FROM countries
+						WHERE country_name = 'India')
+	THEN 'Indian'
+	ELSE 'Non-Indian'
+	END) "INDIA?"
+FROM locations
+WHERE city LIKE 'B%';
+
+-- Select statement
+-- Report the employee name, the department, and the highest salary in that department
+SELECT last_name, department_id,
+	(SELECT MAX(salary)
+	FROM employees sq
+	WHERE sq.department_id = e.department_id) HSAL
+FROM employees e;
+
+
+/* find the department names and their manager
+names for all departments that are in the United States or Canada */
+SELECT department_name, manager_id, (SELECT last_name
+	FROM employees e
+	WHERE e.employee_id = d.manager_id) MGR_NAME
+FROM departments d
+WHERE ((SELECT country_id FROM locations l
+	WHERE d.location_id = l.location_id)
+	IN (SELECT country_id FROM countries c
+	WHERE c.country_name = 'United States of America'
+	OR c.country_name = 'Canada'))
+AND d.manager_id IS NOT NULL;
+WHERE last_name like 'R%';
+
+-- Order by clause
+SELECT country_id, city, state_province
+FROM locations l
+ORDER BY (SELECT country_name
+			FROM countries c
+			WHERE l.country_id = c.country_id);
