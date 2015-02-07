@@ -563,3 +563,132 @@ FROM locations l
 ORDER BY (SELECT country_name
 			FROM countries c
 			WHERE l.country_id = c.country_id);
+
+----**** Multiple column subqueries
+
+SELECT * FROM state;
+SELECT * FROM city;
+
+-- List the cities in Texas
+SELECT cty_name
+FROM city
+WHERE (cnt_code, st_code) IN
+	(SELECT cnt_code, st_code
+	FROM state
+	WHERE st_name = 'TEXAS');
+
+
+----**** Subqueries in Other DML Statements
+
+/* You can use subqueries in DML statements such as INSERT, UPDATE, DELETE, and MERGE. */
+
+-- update the salary of all employees to the maximum salary
+UPDATE employees e1
+SET salary = (SELECT MAX(salary)
+FROM employees e2
+WHERE e1.department_id = e2.department_id);
+
+/* delete the records of employees whose salary is less than the average salary in the
+department */
+DELETE FROM employees e
+WHERE salary < (SELECT AVG(salary) FROM employees
+WHERE department_id = e.department_id);
+
+-- insert records to a table u NN sing a subquery
+INSERT INTO employee_archive
+SELECT * FROM employees;
+
+-- specify a subquery in the VALUES clause of the INSERT statement
+INSERT INTO departments
+(department_id, department_name)
+VALUES ((SELECT MAX(department_id)
++10 FROM departments), ‘EDP’);
+
+
+
+---*** Finding Total Space and Free Space Using Dictionary Views
+
+-- query to get the tablespace names and type of tablespace
+SELECT tablespace_name, contents
+FROM dba_tablespaces;
+
+-- find the total space allocated to each tablespace
+SELECT tablespace_name, SUM(bytes)/1048576 MBytes
+FROM dba_data_files
+GROUP BY tablespace_name;
+
+SELECT tablespace_name, SUM(bytes)/1048576 MBytes
+FROM dba_temp_files
+GROUP BY tablespace_name;
+
+-- find the total free space in each tablespace
+SELECT tablespace_name, SUM(bytes)/1048576 MBytesFree
+FROM dba_free_space
+GROUP BY tablespace_name;
+
+
+--display the total size of the tablespaces and their free space
+
+SELECT tablespace_name, SUM(bytes)/1048576 MBytes, 0 MBytesFree
+FROM dba_data_files
+GROUP BY tablespace_name
+UNION ALL
+SELECT tablespace_name, SUM(bytes)/1048576 MBytes, 0
+FROM dba_temp_files
+GROUP BY tablespace_name
+UNION ALL
+SELECT tablespace_name, 0, SUM(bytes)/1048576
+FROM dba_free_space
+GROUP BY tablespace_name;
+
+-- better output
+SELECT tablespace_name, MBytes, MBytesFree
+FROM
+(SELECT tablespace_name, SUM(bytes)/1048576 MBytes
+FROM dba_data_files
+GROUP BY tablespace_name
+UNION ALL
+SELECT tablespace_name, SUM(bytes)/1048576 MBytes
+FROM dba_temp_files
+GROUP BY tablespace_name) totalspace
+JOIN
+(SELECT tablespace_name, 0, SUM(bytes)/1048576 MBytesFree
+FROM dba_free_space
+GROUP BY tablespace_name) freespace
+USING (tablespace_name);
+
+-- includes temp tablespace
+
+SELECT tablespace_name, MBytes, MBytesFree
+FROM
+	(SELECT tablespace_name, SUM(bytes)/1048576 MBytes
+	FROM dba_data_files
+	GROUP BY tablespace_name
+	UNION ALL
+	SELECT tablespace_name, SUM(bytes)/1048576 MBytes
+	FROM dba_temp_files
+	GROUP BY tablespace_name) totalspace
+LEFT OUTER JOIN
+	(SELECT tablespace_name, 0, SUM(bytes)/1048576 MBytesFree
+	FROM dba_free_space
+	GROUP BY tablespace_name) freespace
+	USING (tablespace_name)
+ORDER BY 1;
+
+-- another method
+
+SELECT tsname, sum(MBytes) MBytes, sum(MBytesFree) MBytesFree
+FROM (
+	SELECT tablespace_name tsname, SUM(bytes)/1048576 MBytes, 0 MBytesFree
+	FROM dba_data_files
+	GROUP BY tablespace_name
+	UNION ALL
+	SELECT tablespace_name, SUM(bytes)/1048576 MBytes, 0
+	FROM dba_temp_files
+	GROUP BY tablespace_name
+	UNION ALL
+	SELECT tablespace_name, 0, SUM(bytes)/1048576
+	FROM dba_free_space
+	GROUP BY tablespace_name)
+GROUP BY tsname
+ORDER BY 1;
