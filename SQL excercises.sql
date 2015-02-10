@@ -371,9 +371,9 @@ WHERE DEPARTMENT_ID IN
 	de 'Smith' */
 
 SELECT * FROM DEPARTMENTS WHERE MANAGER_ID IN 
-  (SELECT EMPLOYEE_ID FROM EMPLOYEES WHERE FIRST_NAME='SMITH');
+  (SELECT EMPLOYEE_ID FROM EMPLOYEES WHERE last_name='SMITH');
 
- /* 59. Mostrar los puestos cuyos empleados se unieron durante el 2008 */
+ /* 59. Mostrar los puestos de los empleados se unieron durante el 2008 */
 
 SELECT * FROM JOBS 
 WHERE JOB_ID IN 

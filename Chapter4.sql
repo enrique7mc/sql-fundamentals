@@ -359,7 +359,7 @@ SELECT last_name, hire_date
 FROM employees
 WHERE last_name LIKE 'K%';
 
-/* The MINUS operatori returns rows from the first query but not 
+/* The MINUS operator returns rows from the first query but not 
 in the second query.*/
 
 -- There can be only one ORDER BY clause in the query at the very end
@@ -428,8 +428,8 @@ AND hire_date >= (SELECT MIN(hire_date)
 					FROM employees
 					WHERE department_id = 30);
 
-/* lists the latest hire dates by departments that have hired an employee after the first
-employee was hired in department 80 */
+/* lists the latest hire dates by departments that have hired an employee 
+after the first employee was hired in department 80 */
 
 SELECT department_id, MAX(hire_date)
 FROM employees
@@ -602,7 +602,7 @@ SELECT * FROM employees;
 INSERT INTO departments
 (department_id, department_name)
 VALUES ((SELECT MAX(department_id)
-+10 FROM departments), ‘EDP’);
+FROM departments), 'EDP');
 
 
 
