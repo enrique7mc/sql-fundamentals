@@ -205,3 +205,143 @@ DESCRIBE purchase_orders
 
 ALTER TABLE scott.purchase_orders
 RENAME TO orders;
+
+---*** Making tables read-only
+
+ALTER TABLE products READ ONLY;
+
+/* The following operations on
+the read-only table are not allowed:
+* INSERT, UPDATE, DELETE, or MERGE statements
+* The TRUNCATE operation
+* Adding, modifying, renaming, or dropping a column
+* Flashing back a table
+* SELECT FOR UPDATE*/
+
+/* The following operations are allowed on the read-only table:
+* SELECT
+* Creating or modifying indexes
+* Creating or modifying constraints
+* Changing the storage characteristics of the table
+* Renaming the table
+* Dropping the table*/
+
+-- Not allowed
+TRUNCATE TABLE products;
+DELETE FROM products;
+INSERT INTO products (prod_id) VALUES (200);
+
+-- Back to normal
+ALTER TABLE products READ WRITE;
+
+---------------------------------
+------ Managing Constraints -----
+---------------------------------
+
+/* Types of constraints: NOT NULL, CHECK, UNIQUE, 
+	PRIMARY KEY, FOREIGN KEY */
+
+/* NOT NULL Constraint
+ A NOT NULL constraint is defined at the column level 
+ [CONSTRAINT <constraint name>] [NOT] NULL*/
+
+-- DROP TABLE orders; -- just in case
+CREATE TABLE orders (
+order_num NUMBER (4) CONSTRAINT nn_order_num NOT NULL,
+order_date DATE NOT NULL,
+product_id NUMBER (6))
+
+-- Add or remove NOT NULL
+ALTER TABLE orders MODIFY order_date NULL;
+ALTER TABLE orders MODIFY product_id NOT NULL;
+
+/* Check Constraint
+ You can define a check constraint at the column level or table level 
+ [CONSTRAINT <constraint name>] CHECK ( <condition> )*/
+
+CREATE TABLE bonus (
+emp_id VARCHAR2 (40) NOT NULL,
+salary NUMBER (9,2),
+bonus NUMBER (9,2),
+CONSTRAINT ck_bonus check (bonus > 0));
+
+ALTER TABLE bonus
+ADD CONSTRAINT ck_bonus2 CHECK (bonus < salary);
+
+/* You cannot use the ALTER TABLE MODIFY clause to add or modify check constraints (only
+NOT NULL constraints can be modified this way).*/
+
+ALTER TABLE orders ADD cust_id number (5)
+CONSTRAINT ck_cust_id CHECK (cust_id > 0);
+
+-- simulate NOT NULL on multiple columns
+ALTER TABLE bonus ADD CONSTRAINT ck_sal_bonus
+CHECK ((bonus IS NULL AND salary IS NULL) OR
+(bonus IS NOT NULL AND salary IS NOT NULL));
+
+/* Unique Constraints
+Unique constraints can be defined at the column level for 
+single-column unique keys
+[CONSTRAINT <constraint name>] UNIQUE
+-- Multiple column up to 32
+[CONSTRAINT <constraint name>]
+UNIQUE (<column>, <column>, …)*/
+
+CREATE TABLE employee(
+	emp_id NUMBER(4),
+	dept VARCHAR2(10)
+);
+
+ALTER TABLE employee
+ADD CONSTRAINT uq_emp_id UNIQUE (dept, emp_id);
+
+ALTER TABLE employee ADD
+ssn VARCHAR2 (11) CONSTRAINT uq_ssn unique;
+
+/* Primary Key
+-- column level
+[CONSTRAINT <constraint name>] PRIMARY KEY
+-- table level
+[CONSTRAINT <constraint name>]
+PRIMARY KEY (<column>, <column>, …)*/
+
+DROP TABLE employee;
+
+CREATE TABLE employee (
+dept_no VARCHAR2 (2),
+emp_id NUMBER (4),
+name VARCHAR2 (20) NOT NULL,
+ssn VARCHAR2 (11),
+salary NUMBER (9,2) CHECK (salary > 0),
+CONSTRAINT pk_employee primary key (dept_no, emp_id),
+CONSTRAINT uq_ssn unique (ssn));
+
+-- add PK to existing table
+ALTER TABLE employee
+ADD CONSTRAINT pk_employee PRIMARY KEY (dept_no, emp_id);
+
+/* Foreign Key
+[CONSTRAINT <constraint name>]
+REFERENCES [<schema>.]<table> [(<column>, <column>, …]
+[ON DELETE {CASCADE | SET NULL}] */
+
+/* You can query the constraint information from the Oracle dictionary using
+the following views: USER_CONSTRAINTS, ALL_CONSTRAINTS, USER_CONS_
+COLUMNS, and ALL_CONS_COLUMNS. */
+
+-- Create a disabled constraint
+
+ALTER TABLE bonus
+ADD CONSTRAINT ck_bonus CHECK (bonus > 0) DISABLE;
+
+---*** Drop constraints 
+
+ALTER TABLE bonus DROP CONSTRAINT ck_bonus;
+
+ALTER TABLE employee MODIFY name NULL;
+
+-- Drop unique or primary key constraint with referenced FK
+
+ALTER TABLE employee DROP UNIQUE (emp_id) CASCADE;
+
+ALTER TABLE bonus DROP PRIMARY KEY CASCADE;
