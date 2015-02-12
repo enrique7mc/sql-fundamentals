@@ -345,3 +345,46 @@ ALTER TABLE employee MODIFY name NULL;
 ALTER TABLE employee DROP UNIQUE (emp_id) CASCADE;
 
 ALTER TABLE bonus DROP PRIMARY KEY CASCADE;
+
+---*** Enabling and disabling constriants
+
+ALTER TABLE bonus DISABLE CONSTRAINT ck_bonus;
+ALTER TABLE employee DISABLE CONSTRAINT uq_ssn;
+
+ALTER TABLE bonus ENABLE CONSTRAINT ck_bonus;
+
+
+-- Validate constraints
+ALTER TABLE wh01 MODIFY CONSTRAINT pk_wh01
+DISABLE NOVALIDATE;
+
+ALTER TABLE wh01 MODIFY CONSTRAINT pk_wh01
+ENABLE NOVALIDATE;
+
+-- Another example
+
+create table emp as
+select employee_id empno, last_name ename, department_id deptno
+from employees;
+
+create table dept as
+select department_id deptno, department_name dname from departments;
+
+DESC emp
+DESC dept
+
+alter table emp add constraint emp_pk primary key (empno);
+alter table dept add constraint dept_pk primary key (deptno);
+alter table emp add constraint
+dept_fk foreign key (deptno) references dept on delete set null;
+
+/* The preceding last constraint does not specify which column of DEPT to
+reference; this will default to the primary key column.*/
+
+insert into dept values(10,'New Department');
+insert into emp values(9999,'New emp',99);
+truncate table dept;
+
+drop table emp;
+drop table dept;
+
