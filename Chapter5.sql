@@ -58,3 +58,71 @@ INSERT INTO accounts (cust_name, acc_open_date)
 /* INSERT [ALL | FIRST] {WHEN <condition> 
 THEN INTO <insert_clause> … … …} [ELSE
 <insert_clause>}*/
+
+---*** Updating rows in a table
+
+/* UPDATE <table_name>
+SET <column> = <value>
+[,<column> = <value> … … …]
+[WHERE <condition>]*/
+
+SELECT first_name, last_name, department_id
+FROM employees
+WHERE employee_id = 200;
+
+UPDATE employees
+SET department_id = 20
+WHERE employee_id = 200;
+
+SELECT first_name, last_name, department_id
+FROM employees
+WHERE employee_id = 200;
+
+CREATE TABLE old_employees AS
+SELECT * FROM employees;
+
+UPDATE old_employees
+SET manager_id = NULL,
+commission_pct = 0;
+
+-- Updating Rows Using a Subquery
+SELECT first_name, last_name, job_id
+FROM employees
+WHERE department_id = 30;
+
+/* the job_id values of all employees in department 30 are changed to match
+the job_id of employee 114 */
+UPDATE employees
+SET job_id = (SELECT job_id
+FROM employees
+WHERE employee_id = 114)
+WHERE department_id = 30;
+
+SELECT first_name, last_name, job_id
+FROM employees
+WHERE department_id = 30;
+
+-- Deleting Rows from a Table
+
+/* DELETE [FROM] <table>
+[WHERE <condition>] */
+
+-- Delete some rows from old_employees
+
+/* Removing all rows from a large table can take a long time and require significant rollback
+segment space.*/
+
+TRUNCATE TABLE old_employees;
+
+/* A DDL statement cannot be rolled back; only DML statements can be 
+rolled back.*/
+
+------------------------------------------------
+-------- Understanding Transaction Control -----
+------------------------------------------------
+
+/* A transaction can include one or more DML statements. A transaction ends when you
+save the transaction (COMMIT) or undo the changes (ROLLBACK). When DDL statements are
+executed, Oracle implicitly ends the previous transaction by saving the changes. It also
+begins a new transaction for the DDL and ends the transaction after the DDL is completed.*/
+
